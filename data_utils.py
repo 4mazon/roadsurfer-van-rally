@@ -7,6 +7,7 @@ from output_handler import output_found_routes_title,\
     output_available_dates,\
     output_stations_iteration,\
     output_stations_iteration_end_decorator_when_appropriate
+from urllib.parse import quote
 
 stations_data = {}
 stations_with_returns = []
@@ -28,8 +29,8 @@ def print_station_destinations(station: list):
 
 def print_station_destination_with_route_url(station: list, return_station_id: int):
     output_destination_title()
-    origin_encoded_address = station["address"].replace(" ", "+").replace("/", "")
-    destination_encoded_address = stations_data[return_station_id]["address"].replace(" ", "+").replace("/", "")
+    origin_encoded_address = quote(station["address"], safe=':/')
+    destination_encoded_address = quote(stations_data[return_station_id]["address"], safe=':/')
     output_destination_with_route_url(stations_data[return_station_id]["name"], origin_encoded_address, destination_encoded_address)
 
 
