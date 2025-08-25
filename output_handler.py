@@ -46,25 +46,6 @@ def output_available_dates(start_date: str, end_date: str) -> None:
     print(f"[{start_date} - {end_date}]", end=" ")
 
 
-def output_stations_iteration(iterator: str, number_of_stations: int) -> None:
-    """Display a visual decorator for iterating over stations."""
-    if iterator not in iterators:
-        iterators[iterator] = 0
-    iterators[iterator] += 1
-    print(iterator_character, end="", flush=True)
-
-    if iterators[iterator] % iterators_width != 0:
-        return
-    print("".ljust(5) + f"({iterators[iterator]} / {number_of_stations})")
-
-
-def output_stations_iteration_end_decorator_when_appropriate(
-    iterator: str, number_of_stations: int
-) -> None:
-    """Display the end iteration decorator if appropriate."""
-    if iterators[iterator] % iterators_width == 0:
-        return
-    print(
-        "".ljust(5 + iterators[iterator] % iterators_width)
-        + f"({iterators[iterator]} / {number_of_stations})"
-    )
+def print_no_stations_with_rally_found() -> None:
+    """Print a message indicating that no stations with rally were found."""
+    print(translations["no_stations_with_rally_found"])

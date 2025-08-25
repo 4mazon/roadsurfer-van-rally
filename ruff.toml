@@ -1,3 +1,4 @@
+preview = true
 line-length = 100
 target-version = "py312"
 [lint]
@@ -18,7 +19,8 @@ select = [
 	"SIM",  # flake8-simplify
 	"Q",    # flake8-quotes
 	"PL",   # pylint
-	"RUF"   # ruff-specific rules
+	"RUF",   # ruff-specific rules
+	"E303"   # too many blank lines
 ]
 ignore = [
 	"D100", # Missing docstring in public module
