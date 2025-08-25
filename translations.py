@@ -3,5 +3,5 @@ translations = {
     "origin": "Origen",
     "destination": "Destino",
     "route": "Ruta",
-    "obtaining_station_list": "Obteniendo listado de estaciones"
+    "obtaining_station_list": "Obteniendo listado de estaciones",
 }
