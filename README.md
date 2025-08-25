@@ -1,23 +1,42 @@
-# Road-surfer van-rally routes checker
 
-This is a simple checker for all rally routes offered by **Roadsurfer**.
+# Roadsurfer Van-Rally Routes Checker
 
-# Why
+This is a simple script to check all rally routes offered by **Roadsurfer**.
 
-Currently the company offers no way of filtering by return location, so I have found easier to just create this small script which outputs every route with available dates and find those interesting for me.
+## Why?
 
-# How to use
+Currently, the company offers no way to filter by return location. This script outputs every route with available dates, making it easier to find the ones that interest you.
 
-Just clone the repo and run `python main.py`. The routes will appear on the terminal.
+## How to Use
 
-You can also store it to a file using `python main.py > routes.txt`
+1. Clone the repository:
 
-Once you know the route you want to pay for, just head to https://booking.roadsurfer.com/en/rally/ and book your van!
+    ```sh
+    git clone https://github.com/4mazon/roadsurfer-van-rally.git
+    cd roadsurfer-van-rally
+    ```
 
-# Notes
+2. Run the script:
 
-Use this with responsibility, since it will hit Roadsurfer servers more than they would expect for a normal usage. As per my tests, available dates and routes don't change that often.
+    ```sh
+    python main.py
+    ```
 
-This *software* will be available until I get a mail from **Roadsurfer** to delete it.
+    The routes will appear in the terminal.
 
-There are also standard rates on https://roadsurfer.com ;)
+3. (Optional) Save the output to a file:
+
+    ```sh
+    python main.py > routes.txt
+    ```
+
+Once you know the route you want, go to [Roadsurfer Rally Booking](https://booking.roadsurfer.com/en/rally/) and book your van!
+
+## Notes
+
+> **Warning**
+> Use this responsibly. The script will make more requests to Roadsurfer servers than a normal user would. As per my tests, available dates and routes do not change very often.
+
+This software will be available until I receive a request from **Roadsurfer** to remove it.
+
+There are also standard rates at [Roadsurfer.com](https://roadsurfer.com) ;)
