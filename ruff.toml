@@ -25,6 +25,7 @@ ignore = [
 	"D104", # Missing docstring in public package
 	"D211", # No blank line before class (conflicts with D203)
 	"D212", # Multi-line summary should start at the first line (conflicts with D213)
+	"T201", # Allow print statements in CLI/console scripts
 ]
 fixable = ["ALL"]
 unfixable = []

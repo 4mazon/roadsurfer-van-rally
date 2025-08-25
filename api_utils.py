@@ -1,5 +1,6 @@
 """
 Module to interact with the Roadsurfer Rally API.
+
 Includes functions to obtain station data, transfer dates, and network utilities.
 """
 from json import loads
@@ -24,9 +25,9 @@ base_headers = {
 }
 
 
-def get_json_from_url(url: str, headers: dict):
+def get_json_from_url(url: str, headers: dict) -> dict | None:
     """
-    Performs a GET request to a URL and returns the response as JSON.
+    Get a JSON response from a URL using a GET request.
 
     Args:
     ----
@@ -39,7 +40,6 @@ def get_json_from_url(url: str, headers: dict):
 
     """
     req = Request(url, headers=headers)
-
     try:
         with urlopen(req) as response:
             data = loads(response.read().decode())
@@ -50,9 +50,9 @@ def get_json_from_url(url: str, headers: dict):
         print("URL Error:", e.reason)
 
 
-def get_station_data(station_id: int):
+def get_station_data(station_id: int) -> dict | None:
     """
-    Gets the data for a specific station or all stations if station_id is None.
+    Get the data for a specific station or all stations if station_id is None.
 
     Args:
     ----
@@ -70,13 +70,12 @@ def get_station_data(station_id: int):
     else:
         url = url_stations
         headers.update({"X-Requested-Alias": "rally.startStations"})
-
     return get_json_from_url(url, headers)
 
 
-def get_stations_data():
+def get_stations_data() -> dict | None:
     """
-    Gets the list of all available stations.
+    Get the list of all available stations.
 
     Returns
     -------
@@ -86,9 +85,9 @@ def get_stations_data():
     return get_station_data(None)
 
 
-def get_station_transfer_dates(origin_station_id: int, destination_station_id: int):
+def get_station_transfer_dates(origin_station_id: int, destination_station_id: int) -> dict | None:
     """
-    Gets the available transfer dates between two stations.
+    Get the available transfer dates between two stations.
 
     Args:
     ----

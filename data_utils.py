@@ -1,5 +1,6 @@
 """
 Utility functions to process and display information about Roadsurfer Rally routes and stations.
+
 Includes functions to print routes, destinations, and available dates.
 """
 from datetime import datetime
@@ -15,9 +16,9 @@ from output_handler import (
 )
 
 
-def print_routes_for_stations(stations: list):
+def print_routes_for_stations(stations: list) -> None:
     """
-    Prints all available routes for a list of stations.
+    Print all available routes for a list of stations.
 
     Args:
     ----
@@ -29,9 +30,9 @@ def print_routes_for_stations(stations: list):
         print_station_destinations(station)
 
 
-def print_station_destinations(station: dict):
+def print_station_destinations(station: dict) -> None:
     """
-    Prints possible destinations and dates for an origin station.
+    Print possible destinations and dates for an origin station.
 
     Args:
     ----
@@ -45,9 +46,9 @@ def print_station_destinations(station: dict):
         print_available_dates(available_dates)
 
 
-def print_station_destination_with_route_url(station: dict, return_station_id: int):
+def print_station_destination_with_route_url(station: dict, return_station_id: int) -> None:
     """
-    Prints the destination and the route URL between two stations.
+    Print the destination and the route URL between two stations.
 
     Args:
     ----
@@ -59,12 +60,14 @@ def print_station_destination_with_route_url(station: dict, return_station_id: i
     origin_encoded_address = quote(station["address"], safe=":/")
     destination_station = get_station_data(return_station_id)
     destination_encoded_address = quote(destination_station["address"], safe=":/")
-    output_destination_with_route_url(destination_station["name"], origin_encoded_address, destination_encoded_address)
+    output_destination_with_route_url(
+        destination_station["name"], origin_encoded_address, destination_encoded_address
+    )
 
 
-def print_available_dates(available_dates: list):
+def print_available_dates(available_dates: list) -> None:
     """
-    Prints the available dates for a route between two stations.
+    Print the available dates for a route between two stations.
 
     Args:
     ----
@@ -78,9 +81,9 @@ def print_available_dates(available_dates: list):
     print()
 
 
-def get_stations_with_rally(stations: list):
+def get_stations_with_rally(stations: list) -> list:
     """
-    Filters and gets the stations that allow rally (one_way).
+    Filter and get the stations that allow rally (one_way).
 
     Args:
     ----
