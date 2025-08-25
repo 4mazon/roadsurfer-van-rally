@@ -1,0 +1,36 @@
+line-length = 100
+target-version = "py312"
+[lint]
+select = [
+	"E",    # pycodestyle errors
+	"F",    # pyflakes
+	"W",    # pycodestyle warnings (incluye W291 y W292)
+	"I",    # isort
+	"N",    # pep8-naming
+	"UP",   # pyupgrade
+	"C90",  # mccabe
+	"D",    # pydocstyle
+	"ANN",  # flake8-annotations
+	"B",    # flake8-bugbear
+	"A",    # flake8-builtins
+	"C4",   # flake8-comprehensions
+	"T20",  # flake8-print
+	"SIM",  # flake8-simplify
+	"Q",    # flake8-quotes
+	"PL",   # pylint
+	"RUF"   # ruff-specific rules
+]
+ignore = [
+	"D100", # Missing docstring in public module
+	"D104", # Missing docstring in public package
+	"D211", # No blank line before class (conflicts with D203)
+	"D212", # Multi-line summary should start at the first line (conflicts with D213)
+]
+fixable = ["ALL"]
+unfixable = []
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
