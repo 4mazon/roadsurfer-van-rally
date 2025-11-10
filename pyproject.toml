@@ -1,0 +1,16 @@
+[project]
+name = "van-rally"
+version = "0.1.0"
+description = "Roadsurfer Van-Rally Routes Checker"
+requires-python = ">=3.12"
+dependencies = [
+    "requests",
+]
+
+[tool.setuptools]
+py-modules = ["main", "api_utils", "data_utils", "output_handler", "translations"]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+]
