@@ -12,6 +12,11 @@ def main() -> None:
     """Run the main script to retrieve and display rally routes."""
     output_obtaining_station_list_title()
     stations_json = get_stations_data()
+
+    if stations_json is None:
+        print_no_stations_with_rally_found()
+        return
+
     stations_with_rally = get_stations_with_rally(stations_json)
 
     if len(stations_with_rally) == 0:
