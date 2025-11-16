@@ -82,7 +82,7 @@ jobs:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
       - name: Install ruff
-        run: pip install ruff
+        run: pip install -e ".[dev]"
       - name: Run ruff
         run: python -m ruff check .
 
@@ -108,11 +108,11 @@ jobs:
         with:
           name: dist
           path: dist/
-      - name: Install package and test tools
+      - name: Install package and dev tools
         run: |
           python -m pip install --upgrade pip
           python -m pip install dist/*.whl
-          python -m pip install pytest pytest-mock
+          python -m pip install -e ".[dev]"
       - name: Run pytest
         run: python -m pytest tests/ -v
 
@@ -138,11 +138,11 @@ jobs:
         with:
           name: dist
           path: dist/
-      - name: Install package and coverage tools
+      - name: Install package and dev tools
         run: |
           python -m pip install --upgrade pip
           python -m pip install dist/*.whl
-          python -m pip install pytest pytest-cov
+          python -m pip install -e ".[dev]"
       - name: Run tests with coverage and enforce threshold
         run: |
           python -m pytest --cov=api_utils --cov=data_utils --cov=main \
