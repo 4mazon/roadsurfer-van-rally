@@ -146,7 +146,13 @@ jobs:
       - name: Run tests with coverage and enforce threshold
         run: |
           python -m pytest --cov=api_utils --cov=data_utils --cov=main \
-            --cov-report=term-missing --cov-report=html --cov-fail-under=80 tests/
+            --cov-report=term-missing --cov-report=html --cov-report=xml:coverage.xml \
+            --cov-fail-under=80 tests/
+      - name: Upload coverage to Codecov
+        if: success() || failure()
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
       - name: Upload coverage HTML (artifact)
         if: always()
         uses: actions/upload-artifact@v4
