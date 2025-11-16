@@ -32,6 +32,54 @@ Currently, the company offers no way to filter by return location. This script o
 
 Once you know the route you want, go to [Roadsurfer Rally Booking](https://booking.roadsurfer.com/en/rally/) and book your van!
 
+## Development
+
+### Installation
+
+To set up the development environment with all testing tools:
+
+```sh
+pip install -e ".[dev]"
+```
+
+### Running Tests
+
+Run all tests:
+
+```sh
+pytest tests/ -v
+```
+
+### Code Coverage
+
+Check code coverage to see which lines are tested:
+
+```sh
+pytest --cov=api_utils --cov=data_utils --cov=main --cov-report=term-missing tests/
+```
+
+For a detailed HTML report:
+
+```sh
+pytest --cov=api_utils --cov=data_utils --cov=main --cov-report=html tests/
+```
+
+The HTML report will be generated in the `htmlcov/` directory.
+
+### Code Quality
+
+Lint code with ruff:
+
+```sh
+ruff check .
+```
+
+Format code automatically:
+
+```sh
+ruff format .
+```
+
 ## Notes
 
 > **Warning**

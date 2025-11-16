@@ -13,4 +13,14 @@ py-modules = ["main", "api_utils", "data_utils", "output_handler", "translations
 [project.optional-dependencies]
 dev = [
     "ruff",
+    "pytest",
+    "pytest-mock",
+    "pytest-cov",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --strict-markers"

@@ -1,0 +1,15 @@
+{
+    "description": "Mock response for transfer dates between two stations (replace ORIGIN_ID-DESTINATION_ID with actual IDs)",
+    "endpoint": "https://booking.roadsurfer.com/api/es/rally/timeframes/ORIGIN_ID-DESTINATION_ID",
+    "headers": {
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "es-ES,es;q=0.7",
+        "X-Requested-Alias": "rally.timeframes"
+    },
+    "data": [
+        {
+            "startDate": "2025-11-18T00:00:00+00:00",
+            "endDate": "2025-11-25T00:00:00+00:00"
+        }
+    ]
+}
