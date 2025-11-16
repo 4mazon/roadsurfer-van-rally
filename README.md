@@ -44,7 +44,7 @@ Once you know the route you want, go to [Roadsurfer Rally Booking](https://booki
 To set up the development environment with all testing tools:
 
 ```sh
-pip install -e "[.dev]"
+pip install -e ".[dev]"
 ```
 
 ### Running Tests
