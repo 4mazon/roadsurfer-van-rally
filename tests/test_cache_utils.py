@@ -1,7 +1,7 @@
 """Tests for cache utilities and API caching behavior."""
+
 import json
 import time
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -14,6 +14,8 @@ from api_utils import (
 from cache_utils import (
     CACHE_DIR,
     CACHE_TTL,
+    _get_cache_file_path,
+    _get_cache_key,
     clear_cache,
     get_cached,
     set_cache,
@@ -29,6 +31,7 @@ def cleanup_cache() -> None:
 
 
 class TestCacheUtils:
+
     """Tests for cache_utils module."""
 
     def test_set_and_get_cache(self) -> None:
@@ -57,12 +60,10 @@ class TestCacheUtils:
         set_cache(url, data)
 
         # Manually modify cache file to set old timestamp
-        from cache_utils import _get_cache_key, _get_cache_file_path
-
         cache_key = _get_cache_key(url)
         cache_file = _get_cache_file_path(cache_key)
 
-        with open(cache_file, "r", encoding="utf-8") as f:
+        with open(cache_file, encoding="utf-8") as f:
             cache_data = json.load(f)
 
         cache_data["timestamp"] = time.time() - (CACHE_TTL + 1)
@@ -87,6 +88,7 @@ class TestCacheUtils:
 
 
 class TestAPIUtilsCaching:
+
     """Tests for API caching behavior."""
 
     def test_get_json_from_url_with_cache_stores_data(self) -> None:

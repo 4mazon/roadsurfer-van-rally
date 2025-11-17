@@ -1,4 +1,5 @@
 """Unit tests for data_utils module."""
+
 import json
 from pathlib import Path
 

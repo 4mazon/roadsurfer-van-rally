@@ -1,4 +1,5 @@
 """Unit tests for main module."""
+
 import json
 from pathlib import Path
 

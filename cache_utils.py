@@ -3,12 +3,12 @@ Cache utilities for storing and retrieving API responses.
 
 Provides file-based caching for API responses with optional TTL.
 """
+
 import json
-import os
+import shutil
 import time
 from hashlib import md5
 from pathlib import Path
-
 
 CACHE_DIR = Path(".cache")
 CACHE_TTL = 86400  # 24 hours in seconds
@@ -52,7 +52,7 @@ def get_cached(url: str) -> dict | None:
         return None
 
     try:
-        with open(cache_file, "r", encoding="utf-8") as f:
+        with open(cache_file, encoding="utf-8") as f:
             cache_data = json.load(f)
 
         # Check TTL
@@ -60,7 +60,7 @@ def get_cached(url: str) -> dict | None:
             return None  # Cache expired
 
         return cache_data.get("data")
-    except (json.JSONDecodeError, IOError):
+    except (OSError, json.JSONDecodeError):
         return None
 
 
@@ -84,13 +84,11 @@ def set_cache(url: str, data: dict) -> None:
     try:
         with open(cache_file, "w", encoding="utf-8") as f:
             json.dump(cache_data, f)
-    except IOError as e:
+    except OSError as e:
         print(f"Warning: Failed to write cache for {url}: {e}")
 
 
 def clear_cache() -> None:
     """Clear all cached data."""
     if CACHE_DIR.exists():
-        import shutil
-
         shutil.rmtree(CACHE_DIR)

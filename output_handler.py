@@ -3,6 +3,7 @@ Functions to display messages and results in the console for the user.
 
 Includes titles, routes, dates, and visual decorators.
 """
+
 from api_utils import url_directions
 from translations import translations
 
@@ -36,9 +37,7 @@ def output_destination_with_route_url(
 ) -> None:
     """Display the destination and the Google Maps route URL."""
     print(f"{station_name} - {translations['route']}: ", end="")
-    print(
-        f"{url_directions}/{origin_encoded_address}/{destination_encoded_address}"
-    )
+    print(f"{url_directions}/{origin_encoded_address}/{destination_encoded_address}")
 
 
 def output_available_dates(start_date: str, end_date: str) -> None:

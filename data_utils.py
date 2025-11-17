@@ -3,6 +3,7 @@ Utility functions to process and display information about Roadsurfer Rally rout
 
 Includes functions to print routes, destinations, and available dates.
 """
+
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from urllib.parse import quote
@@ -130,4 +131,6 @@ def get_stations_with_rally(stations: list) -> list:
                 stations_with_rally[station_id] = station_data
 
     # Return results in original order
-    return [stations_with_rally[s["id"]] for s in filtered_stations if s["id"] in stations_with_rally]
+    return [
+        stations_with_rally[s["id"]] for s in filtered_stations if s["id"] in stations_with_rally
+    ]

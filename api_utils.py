@@ -3,6 +3,7 @@ Module to interact with the Roadsurfer Rally API.
 
 Includes functions to obtain station data, transfer dates, and network utilities.
 """
+
 from json import loads
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
