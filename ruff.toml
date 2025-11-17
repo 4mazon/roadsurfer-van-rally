@@ -32,6 +32,13 @@ ignore = [
 fixable = ["ALL"]
 unfixable = []
 
+[lint.per-file-ignores]
+"tests/**" = [
+    "PLR6301",  # test methods don't need to be module-level
+    "PLR2004",  # allow magic values in tests
+	"PLC2701",  # allow importing private functions in tests
+]
+
 [format]
 quote-style = "double"
 indent-style = "space"

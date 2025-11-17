@@ -1,4 +1,5 @@
 """Unit tests for api_utils module."""
+
 import json
 from pathlib import Path
 from unittest.mock import MagicMock

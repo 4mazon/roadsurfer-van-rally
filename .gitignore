@@ -6,3 +6,4 @@ dist/
 htmlcov/
 .pytest_cache/
 .vscode/
+.cache/

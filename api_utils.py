@@ -3,9 +3,12 @@ Module to interact with the Roadsurfer Rally API.
 
 Includes functions to obtain station data, transfer dates, and network utilities.
 """
+
 from json import loads
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
+
+from cache_utils import get_cached, set_cache
 
 url_stations = "https://booking.roadsurfer.com/api/es/rally/stations"
 url_timeframes = "https://booking.roadsurfer.com/api/es/rally/timeframes"
@@ -25,7 +28,7 @@ base_headers = {
 }
 
 
-def get_json_from_url(url: str, headers: dict) -> dict | None:
+def get_json_from_url(url: str, headers: dict, use_cache: bool = False) -> dict | None:
     """
     Get a JSON response from a URL using a GET request.
 
@@ -33,16 +36,24 @@ def get_json_from_url(url: str, headers: dict) -> dict | None:
     ----
         url (str): URL to send the request to.
         headers (dict): HTTP headers to include in the request.
+        use_cache (bool): Whether to use cache for this request. Defaults to False.
 
     Returns:
     -------
         dict: Decoded JSON response, or None if there is an error.
 
     """
+    # Check cache first if enabled
+    if use_cache and (cached_data := get_cached(url)):
+        return cached_data
+
     req = Request(url, headers=headers)
     try:
         with urlopen(req) as response:
             data = loads(response.read().decode())
+            # Store in cache if enabled
+            if use_cache:
+                set_cache(url, data)
             return data
     except HTTPError as e:
         print("HTTP Error:", e.code)
@@ -67,10 +78,13 @@ def get_station_data(station_id: int) -> dict | None:
     if station_id is not None:
         url = f"{url_stations}/{station_id}"
         headers.update({"X-Requested-Alias": "rally.fetchRoutes"})
+        # Cache individual station details (non-critical data)
+        return get_json_from_url(url, headers, use_cache=True)
     else:
         url = url_stations
         headers.update({"X-Requested-Alias": "rally.startStations"})
-    return get_json_from_url(url, headers)
+        # Do NOT cache the initial station list (critical for rally identification)
+        return get_json_from_url(url, headers, use_cache=False)
 
 
 def get_stations_data() -> dict | None:
@@ -101,4 +115,5 @@ def get_station_transfer_dates(origin_station_id: int, destination_station_id: i
     """
     url = f"{url_timeframes}/{origin_station_id}-{destination_station_id}"
     headers = {**base_headers, "X-Requested-Alias": "rally.timeframes"}
-    return get_json_from_url(url, headers)
+    # Cache transfer dates (non-critical data)
+    return get_json_from_url(url, headers, use_cache=True)
