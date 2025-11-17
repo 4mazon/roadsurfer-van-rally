@@ -44,10 +44,8 @@ def get_json_from_url(url: str, headers: dict, use_cache: bool = False) -> dict 
 
     """
     # Check cache first if enabled
-    if use_cache:
-        cached_data = get_cached(url)
-        if cached_data is not None:
-            return cached_data
+    if use_cache and (cached_data := get_cached(url)):
+        return cached_data
 
     req = Request(url, headers=headers)
     try:
