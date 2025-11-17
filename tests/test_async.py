@@ -4,9 +4,6 @@ from unittest.mock import patch
 
 from data_utils import get_stations_with_rally, print_station_destinations
 
-# Constants to avoid magic numbers
-EXPECTED_RALLY_COUNT = 3
-
 
 def test_get_stations_with_rally_concurrent() -> None:
     """Test that get_stations_with_rally fetches multiple stations concurrently."""
@@ -34,9 +31,9 @@ def test_get_stations_with_rally_concurrent() -> None:
         result = get_stations_with_rally(stations)
 
         # Should have called get_station_data for each rally station
-        assert call_count["count"] == EXPECTED_RALLY_COUNT
-        # Should return EXPECTED_RALLY_COUNT stations (filtered by one_way=True)
-        assert len(result) == EXPECTED_RALLY_COUNT
+        assert call_count["count"] == 3
+        # Should return 3 stations (filtered by one_way=True)
+        assert len(result) == 3
         # Results should be in original order
         assert result[0]["id"] == 1
         assert result[1]["id"] == 3
@@ -104,7 +101,7 @@ def test_print_station_destinations_concurrent() -> None:
         print_station_destinations(station)
 
         # Should have called get_station_transfer_dates for each destination
-        assert call_count["count"] == EXPECTED_RALLY_COUNT
+        assert call_count["count"] == 3
 
 
 def test_get_stations_with_rally_handles_none_responses() -> None:
