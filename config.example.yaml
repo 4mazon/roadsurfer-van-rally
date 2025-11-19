@@ -1,0 +1,16 @@
+# Roadsurfer Van Rally Configuration
+# This file contains URL configuration for the application
+
+api:
+  # Base URL for Roadsurfer API
+  # Change 'es' to your desired region (e.g., 'en', 'de', 'fr')
+  base_url: "https://booking.roadsurfer.com/api/es"
+  
+  endpoints:
+    # Endpoint paths (relative to base_url)
+    stations: "/rally/stations"
+    timeframes: "/rally/timeframes"
+
+maps:
+  # URL for directions/route links
+  directions_url: "https://www.google.com/maps/dir"

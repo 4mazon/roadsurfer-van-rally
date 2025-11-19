@@ -13,6 +13,7 @@ from api_utils import (
     get_station_data,
     get_station_transfer_dates,
     get_stations_data,
+    get_url_directions,
 )
 
 # Path to fixtures directory
@@ -114,3 +115,10 @@ def test_get_station_transfer_dates(mocker: MockerFixture, transfer_dates_fixtur
     assert len(result) > 0
     assert "startDate" in result[0]
     assert "endDate" in result[0]
+
+
+def test_get_url_directions() -> None:
+    """Test getting the directions URL from configuration."""
+    url = get_url_directions()
+    assert isinstance(url, str)
+    assert "maps" in url or "directions" in url.lower()

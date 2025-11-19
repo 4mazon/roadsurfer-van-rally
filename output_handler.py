@@ -4,7 +4,7 @@ Functions to display messages and results in the console for the user.
 Includes titles, routes, dates, and visual decorators.
 """
 
-from api_utils import url_directions
+from api_utils import get_url_directions
 from translations import translations
 
 iterators = {}
@@ -37,6 +37,7 @@ def output_destination_with_route_url(
 ) -> None:
     """Display the destination and the Google Maps route URL."""
     print(f"{station_name} - {translations['route']}: ", end="")
+    url_directions = get_url_directions()
     print(f"{url_directions}/{origin_encoded_address}/{destination_encoded_address}")
 
 
