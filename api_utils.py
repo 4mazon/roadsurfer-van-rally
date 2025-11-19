@@ -9,10 +9,23 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from cache_utils import get_cached, set_cache
+from config_utils import get_config
 
-url_stations = "https://booking.roadsurfer.com/api/es/rally/stations"
-url_timeframes = "https://booking.roadsurfer.com/api/es/rally/timeframes"
-url_directions = "https://www.google.com/maps/dir"
+
+def get_url_stations() -> str:
+    """Get the stations URL from configuration."""
+    return get_config().url_stations
+
+
+def get_url_timeframes() -> str:
+    """Get the timeframes URL from configuration."""
+    return get_config().url_timeframes
+
+
+def get_url_directions() -> str:
+    """Get the directions URL from configuration."""
+    return get_config().url_directions
+
 
 base_headers = {
     "Accept": "application/json, text/plain, */*",
@@ -76,12 +89,12 @@ def get_station_data(station_id: int) -> dict | None:
     """
     headers = base_headers
     if station_id is not None:
-        url = f"{url_stations}/{station_id}"
+        url = f"{get_url_stations()}/{station_id}"
         headers.update({"X-Requested-Alias": "rally.fetchRoutes"})
         # Cache individual station details (non-critical data)
         return get_json_from_url(url, headers, use_cache=True)
     else:
-        url = url_stations
+        url = get_url_stations()
         headers.update({"X-Requested-Alias": "rally.startStations"})
         # Do NOT cache the initial station list (critical for rally identification)
         return get_json_from_url(url, headers, use_cache=False)
@@ -113,7 +126,7 @@ def get_station_transfer_dates(origin_station_id: int, destination_station_id: i
         dict: Available transfer dates.
 
     """
-    url = f"{url_timeframes}/{origin_station_id}-{destination_station_id}"
+    url = f"{get_url_timeframes()}/{origin_station_id}-{destination_station_id}"
     headers = {**base_headers, "X-Requested-Alias": "rally.timeframes"}
     # Cache transfer dates (non-critical data)
     return get_json_from_url(url, headers, use_cache=True)

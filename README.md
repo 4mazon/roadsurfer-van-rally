@@ -37,6 +37,36 @@ python main.py > routes.txt
 
 Once you know the route you want, go to [Roadsurfer Rally Booking](https://booking.roadsurfer.com/en/rally/) and book your van!
 
+## Configuration
+
+The application uses a `config.yaml` file to manage API URLs and endpoint configuration. This allows you to customize the application for different environments or regional API endpoints.
+
+### Auto-Creation
+
+On first run, if `config.yaml` doesn't exist, it will be automatically created from `config.example.yaml` with default values.
+
+### Customizing URLs
+
+Edit `config.yaml` to customize the API endpoints:
+
+```yaml
+api:
+  # Change 'es' to your desired region (e.g., 'en', 'de', 'fr')
+  base_url: "https://booking.roadsurfer.com/api/es"
+  endpoints:
+    stations: "/rally/stations"
+    timeframes: "/rally/timeframes"
+
+maps:
+  directions_url: "https://www.google.com/maps/dir"
+```
+
+**Common use cases:**
+
+- **Different regions**: Change `es` to `en`, `de`, `fr`, etc. for different language endpoints
+- **Staging environment**: Point to a staging API for testing
+- **Alternative maps service**: Change the directions URL to use a different mapping service
+
 ## Development
 
 ### Installation
