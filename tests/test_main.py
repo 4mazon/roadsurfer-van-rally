@@ -28,8 +28,14 @@ def test_main_no_rally_stations(mocker: MockerFixture, stations_list_fixture: li
     # Use only first 2 stations from fixture for this test
     mock_stations = stations_list_fixture[:FIRST_STATIONS_COUNT]
 
+    # Mock argument parsing to return default language
+    mock_args = mocker.Mock()
+    mock_args.language = "en"
+    mocker.patch("main.parse_arguments", return_value=mock_args)
+
     mocker.patch("main.get_stations_data", return_value=mock_stations)
     mocker.patch("main.get_stations_with_rally", return_value=[])
+    mocker.patch("main.load_translations")
     mock_output_title = mocker.patch("main.output_obtaining_station_list_title")
     mock_no_stations = mocker.patch("main.print_no_stations_with_rally_found")
     mock_print_routes = mocker.patch("main.print_routes_for_stations")
@@ -54,8 +60,14 @@ def test_main_with_rally_stations(mocker: MockerFixture, stations_list_fixture: 
         }
     ]
 
+    # Mock argument parsing to return default language
+    mock_args = mocker.Mock()
+    mock_args.language = "en"
+    mocker.patch("main.parse_arguments", return_value=mock_args)
+
     mocker.patch("main.get_stations_data", return_value=mock_all_stations)
     mocker.patch("main.get_stations_with_rally", return_value=mock_rally_stations)
+    mocker.patch("main.load_translations")
     mock_output_title = mocker.patch("main.output_obtaining_station_list_title")
     mock_no_stations = mocker.patch("main.print_no_stations_with_rally_found")
     mock_print_routes = mocker.patch("main.print_routes_for_stations")
@@ -69,8 +81,14 @@ def test_main_with_rally_stations(mocker: MockerFixture, stations_list_fixture: 
 
 def test_main_api_returns_none(mocker: MockerFixture) -> None:
     """Test main function when API returns None."""
+    # Mock argument parsing to return default language
+    mock_args = mocker.Mock()
+    mock_args.language = "en"
+    mocker.patch("main.parse_arguments", return_value=mock_args)
+
     mocker.patch("main.get_stations_data", return_value=None)
     mock_get_rally = mocker.patch("main.get_stations_with_rally")
+    mocker.patch("main.load_translations")
     mock_output_title = mocker.patch("main.output_obtaining_station_list_title")
     mock_no_stations = mocker.patch("main.print_no_stations_with_rally_found")
 

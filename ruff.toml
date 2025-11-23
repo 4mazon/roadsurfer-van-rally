@@ -37,6 +37,7 @@ unfixable = []
     "PLR6301",  # test methods don't need to be module-level
     "PLR2004",  # allow magic values in tests
 	"PLC2701",  # allow importing private functions in tests
+	"ANN401",   # allow Any in test mocks
 ]
 
 [format]

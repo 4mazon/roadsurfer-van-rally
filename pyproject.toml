@@ -19,6 +19,9 @@ py-modules = [
     "cache_utils",
 ]
 
+[tool.setuptools.package-data]
+"*" = ["translations/*.json"]
+
 [project.optional-dependencies]
 dev = [
     "ruff",
