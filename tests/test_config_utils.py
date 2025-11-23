@@ -26,6 +26,7 @@ def test_load_existing_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -
             "endpoints": {"stations": "/stations", "timeframes": "/timeframes"},
         },
         "maps": {"directions_url": "https://maps.test.com"},
+        "language_map": {"en": "en-GB", "es": "es-ES"},
     }
 
     config_path = tmp_path / "config.yaml"
@@ -34,9 +35,12 @@ def test_load_existing_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -
 
     config = get_config()
 
-    assert config.url_stations == "https://test.com/api/stations"
-    assert config.url_timeframes == "https://test.com/api/timeframes"
+    assert config.url_stations == "https://test.com/api/en/stations"
+    assert config.url_timeframes == "https://test.com/api/en/timeframes"
     assert config.url_directions == "https://maps.test.com"
+    assert config.get_api_language_code("en") == "en-GB"
+    assert config.get_api_language_code("es") == "es-ES"
+    assert config.get_api_language_code("fr") == "en-GB"  # Default
 
 
 def test_auto_create_from_example(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -49,6 +53,7 @@ def test_auto_create_from_example(tmp_path: Path, monkeypatch: pytest.MonkeyPatc
             "endpoints": {"stations": "/sta", "timeframes": "/time"},
         },
         "maps": {"directions_url": "https://maps.example.com"},
+        "language_map": {"en": "en-GB"},
     }
 
     example_path = tmp_path / "config.example.yaml"
@@ -64,7 +69,36 @@ def test_auto_create_from_example(tmp_path: Path, monkeypatch: pytest.MonkeyPatc
     with config_path.open("r", encoding="utf-8") as f:
         created_content = yaml.safe_load(f)
     assert created_content == example_content
-    assert config.url_stations == "https://example.com/api/sta"
+    assert config.url_stations == "https://example.com/api/en/sta"
+
+
+def test_language_switching(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test that changing language updates the URLs."""
+    monkeypatch.chdir(tmp_path)
+
+    config_content = {
+        "api": {
+            "base_url": "https://test.com/api",
+            "endpoints": {"stations": "/stations", "timeframes": "/timeframes"},
+        },
+        "maps": {"directions_url": "https://maps.test.com"},
+        "language_map": {"en": "en-GB", "es": "es-ES"},
+    }
+
+    config_path = tmp_path / "config.yaml"
+    with config_path.open("w", encoding="utf-8") as f:
+        yaml.dump(config_content, f)
+
+    config = get_config()
+
+    # Default is 'en'
+    assert config.language == "en"
+    assert config.url_stations == "https://test.com/api/en/stations"
+
+    # Switch to 'es'
+    config.set_language("es")
+    assert config.language == "es"
+    assert config.url_stations == "https://test.com/api/es/stations"
 
 
 def test_validate_required_fields(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -125,6 +159,7 @@ def test_missing_api_base_url(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -
     config_content = {
         "api": {"endpoints": {"stations": "/s", "timeframes": "/t"}},
         "maps": {"directions_url": "https://maps.test.com"},
+        "language_map": {},
     }
 
     config_path = tmp_path / "config.yaml"
@@ -145,6 +180,7 @@ def test_missing_endpoint_field(tmp_path: Path, monkeypatch: pytest.MonkeyPatch)
             "endpoints": {"stations": "/s"},
         },
         "maps": {"directions_url": "https://maps.test.com"},
+        "language_map": {},
     }
 
     config_path = tmp_path / "config.yaml"
@@ -165,6 +201,7 @@ def test_missing_maps_directions_url(tmp_path: Path, monkeypatch: pytest.MonkeyP
             "endpoints": {"stations": "/s", "timeframes": "/t"},
         },
         "maps": {},
+        "language_map": {},
     }
 
     config_path = tmp_path / "config.yaml"
@@ -172,4 +209,24 @@ def test_missing_maps_directions_url(tmp_path: Path, monkeypatch: pytest.MonkeyP
         yaml.dump(config_content, f)
 
     with pytest.raises(ConfigurationError, match=r"maps\.directions_url"):
+        get_config()
+
+
+def test_missing_language_map(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test validation catches missing language_map field."""
+    monkeypatch.chdir(tmp_path)
+
+    config_content = {
+        "api": {
+            "base_url": "https://test.com",
+            "endpoints": {"stations": "/s", "timeframes": "/t"},
+        },
+        "maps": {"directions_url": "https://maps.test.com"},
+    }
+
+    config_path = tmp_path / "config.yaml"
+    with config_path.open("w", encoding="utf-8") as f:
+        yaml.dump(config_content, f)
+
+    with pytest.raises(ConfigurationError, match=r"language_map"):
         get_config()

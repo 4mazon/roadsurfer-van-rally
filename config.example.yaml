@@ -3,8 +3,7 @@
 
 api:
   # Base URL for Roadsurfer API
-  # Change 'es' to your desired region (e.g., 'en', 'de', 'fr')
-  base_url: "https://booking.roadsurfer.com/api/es"
+  base_url: "https://booking.roadsurfer.com/api"
   
   endpoints:
     # Endpoint paths (relative to base_url)
@@ -14,3 +13,8 @@ api:
 maps:
   # URL for directions/route links
   directions_url: "https://www.google.com/maps/dir"
+
+# Mapping from CLI language code to API language code
+language_map:
+  en: "en-GB"
+  es: "es-ES"
