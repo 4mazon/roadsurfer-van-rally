@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from pytest_mock import MockerFixture
 
-from main import main
+from main import main, parse_arguments
 
 # Path to fixtures directory
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
@@ -14,6 +14,24 @@ FIXTURES_DIR = Path(__file__).parent / "fixtures"
 # Constants for test data
 FIRST_STATIONS_COUNT = 2
 RETURN_STATIONS_IDS = [2, 3]
+
+
+def test_parse_arguments_defaults(mocker: MockerFixture) -> None:
+    """Test parsing arguments with defaults."""
+    mocker.patch("sys.argv", ["main.py"])
+    args = parse_arguments()
+    assert args.language == "en"
+
+
+def test_parse_arguments_custom_language(mocker: MockerFixture) -> None:
+    """Test parsing arguments with custom language."""
+    mocker.patch("sys.argv", ["main.py", "--language", "es"])
+    args = parse_arguments()
+    assert args.language == "es"
+
+    mocker.patch("sys.argv", ["main.py", "-l", "de"])
+    args = parse_arguments()
+    assert args.language == "de"
 
 
 @pytest.fixture
