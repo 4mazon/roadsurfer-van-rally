@@ -29,7 +29,18 @@ python main.py
 
 The routes will appear in the terminal.
 
-3. (Optional) Save the output to a file:
+3. (Optional) Select a different language:
+
+```sh
+python main.py --language es  # Spanish
+python main.py -l es          # Spanish (short form)
+```
+
+Available languages:
+- `en` - English (default)
+- `es` - Spanish (Español)
+
+4. (Optional) Save the output to a file:
 
 ```sh
 python main.py > routes.txt

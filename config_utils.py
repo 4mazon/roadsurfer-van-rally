@@ -10,6 +10,8 @@ from typing import Any
 
 import yaml
 
+LANGUAGE_CODE_LENGTH = 2
+
 
 class ConfigurationError(Exception):
 
@@ -95,10 +97,11 @@ class Config:
             "api": ["base_url", "endpoints"],
             "api.endpoints": ["stations", "timeframes"],
             "maps": ["directions_url"],
+            "language_map": [],
         }
 
         # Check top-level fields
-        for field in ["api", "maps"]:
+        for field in ["api", "maps", "language_map"]:
             if field not in config:
                 msg = f"Missing required field '{field}' in configuration"
                 raise ConfigurationError(msg)
@@ -121,19 +124,62 @@ class Config:
                 msg = f"Missing required field 'maps.{field}' in configuration"
                 raise ConfigurationError(msg)
 
+    def get_api_language_code(self, language: str) -> str:
+        """
+        Get the API language code for a given language.
+
+        Args:
+        ----
+            language (str): The language code (e.g., 'en', 'es').
+
+        Returns:
+        -------
+            str: The API language code (e.g., 'en-GB', 'es-ES').
+                 Defaults to 'en-GB' if not found.
+
+        """
+        return self._config.get("language_map", {}).get(language, "en-GB")
+
+    @property
+    def language(self) -> str:
+        """Get the current language code."""
+        return getattr(self, "_language", "en")
+
+    def set_language(self, language: str) -> None:
+        """
+        Set the language for API calls.
+
+        Args:
+        ----
+            language (str): Language code (e.g., 'en', 'es').
+
+        """
+        self._language = language
+
+    @property
+    def _base_url(self) -> str:
+        """Get the base URL, stripping any language suffix if present."""
+        url = self._config["api"]["base_url"]
+        # Strip trailing slash
+        url = url.rstrip("/")
+        # If URL ends with a known language code (2 chars), strip it
+        # This is a simple heuristic to support old configs
+        parts = url.split("/")
+        if len(parts[-1]) == LANGUAGE_CODE_LENGTH:
+            return "/".join(parts[:-1])
+        return url
+
     @property
     def url_stations(self) -> str:
         """Get the full URL for the stations endpoint."""
-        base = self._config["api"]["base_url"]
         endpoint = self._config["api"]["endpoints"]["stations"]
-        return f"{base}{endpoint}"
+        return f"{self._base_url}/{self.language}{endpoint}"
 
     @property
     def url_timeframes(self) -> str:
         """Get the full URL for the timeframes endpoint."""
-        base = self._config["api"]["base_url"]
         endpoint = self._config["api"]["endpoints"]["timeframes"]
-        return f"{base}{endpoint}"
+        return f"{self._base_url}/{self.language}{endpoint}"
 
     @property
     def url_directions(self) -> str:

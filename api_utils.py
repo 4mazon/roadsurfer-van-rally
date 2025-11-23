@@ -27,18 +27,33 @@ def get_url_directions() -> str:
     return get_config().url_directions
 
 
-base_headers = {
-    "Accept": "application/json, text/plain, */*",
-    "Accept-Language": "es-ES,es;q=0.7",
-    "Cache-Control": "no-cache",
-    "Connection": "keep-alive",
-    "Pragma": "no-cache",
-    "Referer": "https://booking.roadsurfer.com/es/rally?currency=EUR",
-    "Sec-Fetch-Dest": "empty",
-    "Sec-Fetch-Mode": "cors",
-    "Sec-Fetch-Site": "same-origin",
-    "X-Requested-Alias": "rally.startStations",
-}
+def get_headers() -> dict[str, str]:
+    """
+    Get the HTTP headers for the API request.
+
+    Returns
+    -------
+        dict: HTTP headers.
+
+    """
+    language = get_config().language
+    # Get language code from config
+    lang_code = get_config().get_api_language_code(language)
+
+    accept_language = f"{lang_code},{language};q=0.7"
+
+    return {
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": accept_language,
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "Pragma": "no-cache",
+        "Referer": f"https://booking.roadsurfer.com/{language}/rally?currency=EUR",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-origin",
+        "X-Requested-Alias": "rally.startStations",
+    }
 
 
 def get_json_from_url(url: str, headers: dict, use_cache: bool = False) -> dict | None:
@@ -87,7 +102,7 @@ def get_station_data(station_id: int) -> dict | None:
         dict: Data for the station or stations.
 
     """
-    headers = base_headers
+    headers = get_headers()
     if station_id is not None:
         url = f"{get_url_stations()}/{station_id}"
         headers.update({"X-Requested-Alias": "rally.fetchRoutes"})
@@ -127,6 +142,6 @@ def get_station_transfer_dates(origin_station_id: int, destination_station_id: i
 
     """
     url = f"{get_url_timeframes()}/{origin_station_id}-{destination_station_id}"
-    headers = {**base_headers, "X-Requested-Alias": "rally.timeframes"}
+    headers = {**get_headers(), "X-Requested-Alias": "rally.timeframes"}
     # Cache transfer dates (non-critical data)
     return get_json_from_url(url, headers, use_cache=True)

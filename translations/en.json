@@ -1,0 +1,8 @@
+{
+  "found_routes": "Showing found routes",
+  "origin": "Origin",
+  "destination": "Destination",
+  "route": "Route",
+  "obtaining_station_list": "Obtaining station list",
+  "no_stations_with_rally_found": "No stations with rally found."
+}

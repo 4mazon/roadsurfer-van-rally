@@ -1,8 +1,12 @@
 api:
-  base_url: "https://booking.roadsurfer.com/api/es"
+  base_url: "https://booking.roadsurfer.com/api"
   endpoints:
     stations: "/rally/stations"
     timeframes: "/rally/timeframes"
 
 maps:
   directions_url: "https://www.google.com/maps/dir"
+
+language_map:
+  en: "en-GB"
+  es: "es-ES"
