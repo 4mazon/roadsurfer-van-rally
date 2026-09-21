@@ -1,19 +1,11 @@
 """Unit tests for config_utils module."""
 
-from collections.abc import Generator
 from pathlib import Path
 
 import pytest
 import yaml
 
-from config_utils import Config, ConfigurationError, get_config
-
-
-@pytest.fixture(autouse=True)
-def reset_config_singleton() -> Generator[None, None, None]:
-    """Reset the Config singleton before and after each test."""
-    Config._instance = None
-    Config._config = None
+from van_rally.config_utils import Config, ConfigurationError, get_config
 
 
 def test_load_existing_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -43,8 +35,8 @@ def test_load_existing_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -
     assert config.get_api_language_code("fr") == "en-GB"  # Default
 
 
-def test_auto_create_from_example(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """Test auto-creation of config.yaml from config.example.yaml when missing."""
+def test_explicit_config_takes_precedence(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test an explicit configuration overrides the local file and remains active."""
     monkeypatch.chdir(tmp_path)
 
     example_content = {
@@ -56,20 +48,18 @@ def test_auto_create_from_example(tmp_path: Path, monkeypatch: pytest.MonkeyPatc
         "language_map": {"en": "en-GB"},
     }
 
-    example_path = tmp_path / "config.example.yaml"
+    example_path = tmp_path / "custom.yaml"
     with example_path.open("w", encoding="utf-8") as f:
         yaml.dump(example_content, f)
 
     config_path = tmp_path / "config.yaml"
-    assert not config_path.exists()
+    config_path.write_text("not: a valid configuration", encoding="utf-8")
+    config = get_config(example_path)
 
-    config = get_config()
-
-    assert config_path.exists()
-    with config_path.open("r", encoding="utf-8") as f:
-        created_content = yaml.safe_load(f)
-    assert created_content == example_content
+    assert config_path.read_text(encoding="utf-8") == "not: a valid configuration"
     assert config.url_stations == "https://example.com/api/en/sta"
+    assert get_config() is config
+    assert get_config().url_stations == "https://example.com/api/en/sta"
 
 
 def test_language_switching(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -132,14 +122,32 @@ def test_invalid_yaml(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         get_config()
 
 
-def test_missing_example_template(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """Test error when both config.yaml and config.example.yaml are missing."""
+def test_bundled_defaults(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test defaults work outside the checkout without creating local files."""
     monkeypatch.chdir(tmp_path)
 
     assert not (tmp_path / "config.yaml").exists()
     assert not (tmp_path / "config.example.yaml").exists()
 
-    with pytest.raises(ConfigurationError, match=r"config\.example\.yaml not found"):
+    config = get_config()
+    assert config.url_stations == "https://booking.roadsurfer.com/api/en/rally/stations"
+    assert config.get_api_language_code("es") == "es-ES"
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_missing_explicit_config(tmp_path: Path) -> None:
+    """Never silently fall back when a requested file does not exist."""
+    get_config()  # A previously loaded default must not hide a bad explicit path.
+    with pytest.raises(ConfigurationError, match="Error reading"):
+        get_config(tmp_path / "missing.yaml")
+
+
+@pytest.mark.parametrize("content", ["", "[]", "42", "api: null\nmaps: {}\nlanguage_map: {}"])
+def test_invalid_configuration_shape(tmp_path: Path, content: str) -> None:
+    """Reject non-mapping configuration with a useful error."""
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text(content, encoding="utf-8")
+    with pytest.raises(ConfigurationError, match="mapping"):
         get_config()
 
 

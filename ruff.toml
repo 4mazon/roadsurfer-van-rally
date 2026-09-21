@@ -1,6 +1,7 @@
 preview = true
 line-length = 100
-target-version = "py312"
+target-version = "py314"
+extend-exclude = [".venv-backup-*"]
 [lint]
 select = [
 	"E",    # pycodestyle errors
@@ -20,28 +21,28 @@ select = [
 	"Q",    # flake8-quotes
 	"PL",   # pylint
 	"RUF",   # ruff-specific rules
-	"E303"   # too many blank lines
+	"too-many-blank-lines"   # too many blank lines
 ]
 ignore = [
-	"D100", # Missing docstring in public module
-	"D104", # Missing docstring in public package
-	"D211", # No blank line before class (conflicts with D203)
-	"D212", # Multi-line summary should start at the first line (conflicts with D213)
-	"T201", # Allow print statements in CLI/console scripts
+	"undocumented-public-module", # Missing docstring in public module
+	"undocumented-public-package", # Missing docstring in public package
+	"incorrect-blank-line-before-class", # Match Ruff formatter: no blank line before class docstring
+	"multi-line-summary-first-line", # Multi-line summary should start at the first line (conflicts with D213)
+	"print", # Allow print statements in CLI/console scripts
 ]
 fixable = ["ALL"]
 unfixable = []
 
 [lint.per-file-ignores]
 "tests/**" = [
-    "PLR6301",  # test methods don't need to be module-level
-    "PLR2004",  # allow magic values in tests
-	"PLC2701",  # allow importing private functions in tests
-	"ANN401",   # allow Any in test mocks
+    "no-self-use",  # test methods don't need to be module-level
+    "magic-value-comparison",  # allow magic values in tests
+	"import-private-name",  # allow importing private functions in tests
+	"any-type",   # allow Any in test mocks
 ]
 
 [format]
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
-line-ending = "auto"
+line-ending = "lf"

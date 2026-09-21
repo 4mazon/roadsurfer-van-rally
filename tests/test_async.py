@@ -2,7 +2,7 @@
 
 from unittest.mock import patch
 
-from data_utils import get_stations_with_rally, print_station_destinations
+from van_rally.data_utils import get_stations_with_rally, print_station_destinations
 
 
 def test_get_stations_with_rally_concurrent() -> None:
@@ -27,7 +27,7 @@ def test_get_stations_with_rally_concurrent() -> None:
         call_count["count"] += 1
         return station_details.get(station_id)
 
-    with patch("data_utils.get_station_data", side_effect=mock_get_station_data):
+    with patch("van_rally.data_utils.get_station_data", side_effect=mock_get_station_data):
         result = get_stations_with_rally(stations)
 
         # Should have called get_station_data for each rally station
@@ -67,7 +67,9 @@ def test_get_stations_with_rally_preserves_order() -> None:
         1: {"id": 1, "name": "Station 1", "address": "Addr 1", "returns": []},
     }
 
-    with patch("data_utils.get_station_data", side_effect=lambda sid: station_details[sid]):
+    with patch(
+        "van_rally.data_utils.get_station_data", side_effect=lambda sid: station_details[sid]
+    ):
         result = get_stations_with_rally(stations)
 
         # Should preserve original order
@@ -93,10 +95,12 @@ def test_print_station_destinations_concurrent() -> None:
         return dates_data
 
     with (
-        patch("data_utils.get_station_transfer_dates", side_effect=mock_get_transfer_dates),
-        patch("data_utils.print_station_destination_with_route_url"),
-        patch("data_utils.print_available_dates"),
-        patch("data_utils.output_origin"),
+        patch(
+            "van_rally.data_utils.get_station_transfer_dates", side_effect=mock_get_transfer_dates
+        ),
+        patch("van_rally.data_utils.print_station_destination_with_route_url"),
+        patch("van_rally.data_utils.print_available_dates"),
+        patch("van_rally.data_utils.output_origin"),
     ):
         print_station_destinations(station)
 
@@ -123,7 +127,7 @@ def test_get_stations_with_rally_handles_none_responses() -> None:
             "returns": [],
         }
 
-    with patch("data_utils.get_station_data", side_effect=mock_get_station_data):
+    with patch("van_rally.data_utils.get_station_data", side_effect=mock_get_station_data):
         result = get_stations_with_rally(stations)
 
         # Should return only valid stations (1 and 3)
@@ -152,13 +156,15 @@ def test_print_station_destinations_orders_output_correctly() -> None:
     mock_print_destination.calls = []
 
     with (
-        patch("data_utils.get_station_transfer_dates", side_effect=mock_get_transfer_dates),
         patch(
-            "data_utils.print_station_destination_with_route_url",
+            "van_rally.data_utils.get_station_transfer_dates", side_effect=mock_get_transfer_dates
+        ),
+        patch(
+            "van_rally.data_utils.print_station_destination_with_route_url",
             side_effect=mock_print_destination,
         ),
-        patch("data_utils.print_available_dates"),
-        patch("data_utils.output_origin"),
+        patch("van_rally.data_utils.print_available_dates"),
+        patch("van_rally.data_utils.output_origin"),
     ):
         print_station_destinations(station)
 

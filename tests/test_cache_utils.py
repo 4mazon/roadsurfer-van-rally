@@ -2,17 +2,18 @@
 
 import json
 import time
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from api_utils import (
+from van_rally import cache_utils
+from van_rally.api_utils import (
     get_json_from_url,
     get_station_data,
     get_station_transfer_dates,
 )
-from cache_utils import (
-    CACHE_DIR,
+from van_rally.cache_utils import (
     CACHE_TTL,
     _get_cache_file_path,
     _get_cache_key,
@@ -22,16 +23,7 @@ from cache_utils import (
 )
 
 
-@pytest.fixture(autouse=True)
-def cleanup_cache() -> None:
-    """Clear cache before and after each test."""
-    clear_cache()
-    yield
-    clear_cache()
-
-
 class TestCacheUtils:
-
     """Tests for cache_utils module."""
 
     def test_set_and_get_cache(self) -> None:
@@ -43,7 +35,7 @@ class TestCacheUtils:
         cached = get_cached(url)
 
         assert cached == data
-        assert CACHE_DIR.exists()
+        assert cache_utils.CACHE_DIR.exists()
 
     def test_get_cache_nonexistent_url(self) -> None:
         """Test getting cache for URL that was never cached."""
@@ -81,14 +73,23 @@ class TestCacheUtils:
         data = {"key": "value"}
 
         set_cache(url, data)
-        assert CACHE_DIR.exists()
+        assert cache_utils.CACHE_DIR.exists()
 
         clear_cache()
-        assert not CACHE_DIR.exists()
+        assert not cache_utils.CACHE_DIR.exists()
+
+    def test_cache_write_failure_is_nonfatal(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture
+    ) -> None:
+        """A non-writable cache location must not prevent displaying routes."""
+        blocked_path = tmp_path / "not-a-directory"
+        blocked_path.write_text("occupied", encoding="utf-8")
+        monkeypatch.setattr(cache_utils, "CACHE_DIR", blocked_path / "cache")
+        set_cache("https://example.com", {"key": "value"})
+        assert "Failed to write cache" in capsys.readouterr().err
 
 
 class TestAPIUtilsCaching:
-
     """Tests for API caching behavior."""
 
     def test_get_json_from_url_with_cache_stores_data(self) -> None:
@@ -96,7 +97,7 @@ class TestAPIUtilsCaching:
         url = "https://example.com/api"
         response_data = {"stations": [{"id": 1, "name": "Station A"}]}
 
-        with patch("api_utils.urlopen") as mock_urlopen:
+        with patch("van_rally.api_utils.urlopen") as mock_urlopen:
             mock_response = MagicMock()
             mock_response.read.return_value = json.dumps(response_data).encode()
             mock_urlopen.return_value.__enter__.return_value = mock_response
@@ -113,7 +114,7 @@ class TestAPIUtilsCaching:
 
         set_cache(url, cached_data)
 
-        with patch("api_utils.urlopen") as mock_urlopen:
+        with patch("van_rally.api_utils.urlopen") as mock_urlopen:
             result = get_json_from_url(url, {}, use_cache=True)
 
             # Should not call urlopen since data is cached
@@ -128,7 +129,7 @@ class TestAPIUtilsCaching:
 
         set_cache(url, cached_data)
 
-        with patch("api_utils.urlopen") as mock_urlopen:
+        with patch("van_rally.api_utils.urlopen") as mock_urlopen:
             mock_response = MagicMock()
             mock_response.read.return_value = json.dumps(fresh_data).encode()
             mock_urlopen.return_value.__enter__.return_value = mock_response
@@ -144,7 +145,7 @@ class TestAPIUtilsCaching:
         station_id = 20
         station_data = {"id": 20, "name": "Madrid", "address": "Madrid, Spain"}
 
-        with patch("api_utils.urlopen") as mock_urlopen:
+        with patch("van_rally.api_utils.urlopen") as mock_urlopen:
             mock_response = MagicMock()
             mock_response.read.return_value = json.dumps(station_data).encode()
             mock_urlopen.return_value.__enter__.return_value = mock_response
@@ -166,7 +167,7 @@ class TestAPIUtilsCaching:
             {"id": 2, "name": "Station 2"},
         ]
 
-        with patch("api_utils.urlopen") as mock_urlopen:
+        with patch("van_rally.api_utils.urlopen") as mock_urlopen:
             mock_response = MagicMock()
             mock_response.read.return_value = json.dumps(all_stations_data).encode()
             mock_urlopen.return_value.__enter__.return_value = mock_response
@@ -189,7 +190,7 @@ class TestAPIUtilsCaching:
             {"startDate": "2025-01-15", "endDate": "2025-01-22"},
         ]
 
-        with patch("api_utils.urlopen") as mock_urlopen:
+        with patch("van_rally.api_utils.urlopen") as mock_urlopen:
             mock_response = MagicMock()
             mock_response.read.return_value = json.dumps(dates_data).encode()
             mock_urlopen.return_value.__enter__.return_value = mock_response

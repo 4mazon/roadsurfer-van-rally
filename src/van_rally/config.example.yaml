@@ -4,7 +4,7 @@
 api:
   # Base URL for Roadsurfer API
   base_url: "https://booking.roadsurfer.com/api"
-  
+
   endpoints:
     # Endpoint paths (relative to base_url)
     stations: "/rally/stations"

@@ -7,3 +7,7 @@ htmlcov/
 .pytest_cache/
 .vscode/
 .cache/
+.ruff_cache/
+coverage.xml
+.venv/
+.venv-backup-*/

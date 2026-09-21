@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from pytest_mock import MockerFixture
 
-from data_utils import (
+from van_rally.data_utils import (
     get_stations_with_rally,
     print_available_dates,
     print_routes_for_stations,
@@ -49,7 +49,7 @@ def test_get_stations_with_rally_filters_correctly(
         {"id": 4, "name": "Station 4"},  # no one_way key
     ]
 
-    mocker.patch("data_utils.get_station_data", return_value=station_detail_fixture)
+    mocker.patch("van_rally.data_utils.get_station_data", return_value=station_detail_fixture)
 
     result = get_stations_with_rally(mock_stations)
 
@@ -71,7 +71,7 @@ def test_print_available_dates(mocker: MockerFixture) -> None:
         {"startDate": "2025-12-15T00:00:00Z", "endDate": "2025-12-25T00:00:00Z"},
     ]
 
-    mock_output = mocker.patch("data_utils.output_available_dates")
+    mock_output = mocker.patch("van_rally.data_utils.output_available_dates")
 
     print_available_dates(mock_dates)
 
@@ -91,9 +91,9 @@ def test_print_station_destination_with_route_url(
         "address": "123 Main St, City, Country",
     }
 
-    mocker.patch("data_utils.get_station_data", return_value=station_detail_fixture)
-    mock_output_title = mocker.patch("data_utils.output_destination_title")
-    mock_output_url = mocker.patch("data_utils.output_destination_with_route_url")
+    mocker.patch("van_rally.data_utils.get_station_data", return_value=station_detail_fixture)
+    mock_output_title = mocker.patch("van_rally.data_utils.output_destination_title")
+    mock_output_url = mocker.patch("van_rally.data_utils.output_destination_with_route_url")
 
     print_station_destination_with_route_url(station, MADRID_STATION_ID)
 
@@ -114,10 +114,12 @@ def test_print_station_destinations(mocker: MockerFixture, transfer_dates_fixtur
         "returns": [2, 3],
     }
 
-    mock_output_origin = mocker.patch("data_utils.output_origin")
-    mocker.patch("data_utils.print_station_destination_with_route_url")
-    mocker.patch("data_utils.get_station_transfer_dates", return_value=transfer_dates_fixture)
-    mocker.patch("data_utils.print_available_dates")
+    mock_output_origin = mocker.patch("van_rally.data_utils.output_origin")
+    mocker.patch("van_rally.data_utils.print_station_destination_with_route_url")
+    mocker.patch(
+        "van_rally.data_utils.get_station_transfer_dates", return_value=transfer_dates_fixture
+    )
+    mocker.patch("van_rally.data_utils.print_available_dates")
 
     print_station_destinations(station)
 
@@ -131,8 +133,8 @@ def test_print_routes_for_stations(mocker: MockerFixture) -> None:
         {"id": 3, "name": "Station 3", "returns": [4]},
     ]
 
-    mock_output_title = mocker.patch("data_utils.output_found_routes_title")
-    mock_print_destinations = mocker.patch("data_utils.print_station_destinations")
+    mock_output_title = mocker.patch("van_rally.data_utils.output_found_routes_title")
+    mock_print_destinations = mocker.patch("van_rally.data_utils.print_station_destinations")
 
     print_routes_for_stations(stations)
 

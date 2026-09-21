@@ -1,0 +1,2 @@
+include ruff.toml
+recursive-include tests *.py *.json *.md
