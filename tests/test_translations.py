@@ -2,12 +2,15 @@
 
 import json
 from pathlib import Path
-from typing import Any
-from unittest.mock import mock_open, patch
 
 import pytest
 
-from translations import DEFAULT_LANGUAGE, get_translation, load_translations
+from van_rally.translations import (
+    DEFAULT_LANGUAGE,
+    TranslationManager,
+    get_translation,
+    load_translations,
+)
 
 
 def test_load_translations_english() -> None:
@@ -60,7 +63,9 @@ def test_get_translation_missing_key() -> None:
     assert translation == "nonexistent_key"
 
 
-def test_get_translation_fallback_to_english() -> None:
+def test_get_translation_fallback_to_english(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """Test that missing keys in Spanish fall back to English."""
     # Create a mock Spanish file with missing keys
     mock_es_data = {"found_routes": "Mostrando rutas encontradas"}
@@ -70,26 +75,13 @@ def test_get_translation_fallback_to_english() -> None:
         "destination": "Destination",
     }
 
-    # Mock the file reading
-    def mock_file_open(file_path: Path, *args: Any, **kwargs: Any) -> Any:
-        file_str = str(file_path)
-        if "es.json" in file_str:
-            return mock_open(read_data=json.dumps(mock_es_data))()
-        elif "en.json" in file_str:
-            return mock_open(read_data=json.dumps(mock_en_data))()
-        raise FileNotFoundError(f"No such file: {file_path}")
-
-    with (
-        patch("builtins.open", side_effect=mock_file_open),
-        patch.object(Path, "exists", return_value=True),
-    ):
-        load_translations("es")
-
-        # This key exists in Spanish
-        assert get_translation("found_routes") == "Mostrando rutas encontradas"
-
-        # This key only exists in English (fallback)
-        assert get_translation("origin") == "Origin"
+    (tmp_path / "es.json").write_text(json.dumps(mock_es_data), encoding="utf-8")
+    (tmp_path / "en.json").write_text(json.dumps(mock_en_data), encoding="utf-8")
+    manager = TranslationManager()
+    monkeypatch.setattr(manager, "_translations_dir", tmp_path)
+    manager.load_translations("es")
+    assert manager.get_translation("found_routes") == "Mostrando rutas encontradas"
+    assert manager.get_translation("origin") == "Origin"
 
 
 def test_default_language_is_english() -> None:

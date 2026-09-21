@@ -1,30 +1,34 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "van-rally"
 version = "0.1.0"
 description = "Roadsurfer Van-Rally Routes Checker"
-requires-python = ">=3.12"
+readme = "README.md"
+requires-python = ">=3.14"
 dependencies = [
-    "requests",
-    "pyyaml",
+    "PyYAML>=6.0.3",
 ]
+
+[project.scripts]
+van-rally = "van_rally.main:main"
 
 [tool.setuptools]
-py-modules = [
-    "main", 
-    "api_utils", 
-    "data_utils", 
-    "output_handler",
-    "translations",
-    "config_utils", 
-    "cache_utils",
-]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false
 
 [tool.setuptools.package-data]
-"*" = ["translations/*.json"]
+van_rally = ["translations/*.json", "config.example.yaml"]
 
 [project.optional-dependencies]
 dev = [
-    "ruff",
+    "build",
+    "ruff>=0.16.8,<0.17",
     "pytest",
     "pytest-mock",
     "pytest-cov",

@@ -4,8 +4,8 @@ Functions to display messages and results in the console for the user.
 Includes titles, routes, dates, and visual decorators.
 """
 
-from api_utils import get_url_directions
-from translations import get_translation
+from van_rally.api_utils import get_url_directions
+from van_rally.translations import get_translation
 
 iterators = {}
 iterator_character = "."

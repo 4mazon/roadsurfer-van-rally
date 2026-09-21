@@ -8,8 +8,8 @@ from json import loads
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-from cache_utils import get_cached, set_cache
-from config_utils import get_config
+from van_rally.cache_utils import get_cached, set_cache
+from van_rally.config_utils import get_config
 
 
 def get_url_stations() -> str:

@@ -6,11 +6,12 @@ Provides file-based caching for API responses with optional TTL.
 
 import json
 import shutil
+import sys
 import time
 from hashlib import md5
 from pathlib import Path
 
-CACHE_DIR = Path(".cache")
+CACHE_DIR = Path.home() / ".van-rally" / "cache"
 CACHE_TTL = 86400  # 24 hours in seconds
 
 
@@ -26,7 +27,7 @@ def _get_cache_file_path(cache_key: str) -> Path:
 
 def _ensure_cache_dir() -> None:
     """Ensure the cache directory exists."""
-    CACHE_DIR.mkdir(exist_ok=True)
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def get_cached(url: str) -> dict | None:
@@ -60,7 +61,7 @@ def get_cached(url: str) -> dict | None:
             return None  # Cache expired
 
         return cache_data.get("data")
-    except (OSError, json.JSONDecodeError):
+    except OSError, json.JSONDecodeError:
         return None
 
 
@@ -74,18 +75,17 @@ def set_cache(url: str, data: dict) -> None:
         data (dict): The data to cache.
 
     """
-    _ensure_cache_dir()
-
     cache_key = _get_cache_key(url)
     cache_file = _get_cache_file_path(cache_key)
 
     cache_data = {"timestamp": time.time(), "data": data}
 
     try:
+        _ensure_cache_dir()
         with open(cache_file, "w", encoding="utf-8") as f:
             json.dump(cache_data, f)
     except OSError as e:
-        print(f"Warning: Failed to write cache for {url}: {e}")
+        print(f"Warning: Failed to write cache for {url}: {e}", file=sys.stderr)
 
 
 def clear_cache() -> None:

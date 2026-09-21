@@ -1,10 +1,10 @@
 """
 Module to handle YAML configuration loading for the van-rally application.
 
-Provides configuration management with auto-creation from template if missing.
+Loads an explicit file, a local config.yaml, or read-only bundled defaults.
 """
 
-import shutil
+from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
@@ -14,33 +14,31 @@ LANGUAGE_CODE_LENGTH = 2
 
 
 class ConfigurationError(Exception):
-
     """Raised when there is an error with the configuration."""
 
 
 class Config:
-
     """Configuration manager with singleton pattern."""
 
-    _instance: "Config | None" = None
+    _instance: Config | None = None
     _config: dict[str, Any] | None = None
 
-    def __new__(cls) -> "Config":
+    def __new__(cls, config_path: Path | None = None) -> Config:
         """Ensure only one instance of Config exists."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self) -> None:
+    def __init__(self, config_path: Path | None = None) -> None:
         """Initialize configuration if not already loaded."""
-        if self._config is None:
-            self._config = self._load_config()
+        if self._config is None or config_path is not None:
+            self._config = self._load_config(config_path)
 
-    def _load_config(self) -> dict[str, Any]:
+    def _load_config(self, config_path: Path | None = None) -> dict[str, Any]:
         """
-        Load configuration from config.yaml.
+        Load an explicit path, local config.yaml, or bundled defaults, in that order.
 
-        If config.yaml doesn't exist, create it from config.example.yaml.
+        Never create configuration files or silently ignore an invalid explicit path.
 
         Returns
         -------
@@ -51,17 +49,13 @@ class Config:
             ConfigurationError: If configuration file is invalid or missing.
 
         """
-        config_path = Path("config.yaml")
-        example_path = Path("config.example.yaml")
-
-        # Auto-create config from example if missing
-        if not config_path.exists():
-            if not example_path.exists():
-                msg = "config.example.yaml not found. Cannot create default configuration."
-                raise ConfigurationError(msg)
-
-            print(f"Creating {config_path} from {example_path}...")
-            shutil.copy(example_path, config_path)
+        if config_path is None:
+            local_path = Path("config.yaml")
+            config_path = (
+                local_path
+                if local_path.exists()
+                else files("van_rally").joinpath("config.example.yaml")
+            )
 
         # Load the config file
         try:
@@ -93,36 +87,29 @@ class Config:
             ConfigurationError: If required fields are missing.
 
         """
+        if not isinstance(config, dict):
+            msg = "Configuration must be a YAML mapping"
+            raise ConfigurationError(msg)
+
         required_fields = {
+            "": ["api", "maps", "language_map"],
             "api": ["base_url", "endpoints"],
-            "api.endpoints": ["stations", "timeframes"],
             "maps": ["directions_url"],
             "language_map": [],
+            "api.endpoints": ["stations", "timeframes"],
         }
-
-        # Check top-level fields
-        for field in ["api", "maps", "language_map"]:
-            if field not in config:
-                msg = f"Missing required field '{field}' in configuration"
+        for section, fields in required_fields.items():
+            value = config
+            for part in section.split(".") if section else []:
+                value = value[part]
+            if not isinstance(value, dict):
+                msg = f"Configuration field '{section}' must be a mapping"
                 raise ConfigurationError(msg)
-
-        # Check api fields
-        for field in required_fields["api"]:
-            if field not in config["api"]:
-                msg = f"Missing required field 'api.{field}' in configuration"
-                raise ConfigurationError(msg)
-
-        # Check api.endpoints fields
-        for field in required_fields["api.endpoints"]:
-            if field not in config["api"]["endpoints"]:
-                msg = f"Missing required field 'api.endpoints.{field}' in configuration"
-                raise ConfigurationError(msg)
-
-        # Check maps fields
-        for field in required_fields["maps"]:
-            if field not in config["maps"]:
-                msg = f"Missing required field 'maps.{field}' in configuration"
-                raise ConfigurationError(msg)
+            for field in fields:
+                if field not in value:
+                    path = f"{section}.{field}" if section else field
+                    msg = f"Missing required field '{path}' in configuration"
+                    raise ConfigurationError(msg)
 
     def get_api_language_code(self, language: str) -> str:
         """
@@ -142,7 +129,7 @@ class Config:
 
     @property
     def language(self) -> str:
-        """Get the current language code."""
+        """The current language code."""
         return getattr(self, "_language", "en")
 
     def set_language(self, language: str) -> None:
@@ -158,7 +145,7 @@ class Config:
 
     @property
     def _base_url(self) -> str:
-        """Get the base URL, stripping any language suffix if present."""
+        """The base URL without a legacy language suffix."""
         url = self._config["api"]["base_url"]
         # Strip trailing slash
         url = url.rstrip("/")
@@ -171,29 +158,29 @@ class Config:
 
     @property
     def url_stations(self) -> str:
-        """Get the full URL for the stations endpoint."""
+        """The full URL for the stations endpoint."""
         endpoint = self._config["api"]["endpoints"]["stations"]
         return f"{self._base_url}/{self.language}{endpoint}"
 
     @property
     def url_timeframes(self) -> str:
-        """Get the full URL for the timeframes endpoint."""
+        """The full URL for the timeframes endpoint."""
         endpoint = self._config["api"]["endpoints"]["timeframes"]
         return f"{self._base_url}/{self.language}{endpoint}"
 
     @property
     def url_directions(self) -> str:
-        """Get the URL for Google Maps directions."""
+        """The URL for Google Maps directions."""
         return self._config["maps"]["directions_url"]
 
 
-def get_config() -> Config:
+def get_config(config_path: Path | None = None) -> Config:
     """
-    Get the singleton Config instance.
+    Get the singleton Config instance, optionally loading an explicit file.
 
     Returns
     -------
         Config: The configuration instance.
 
     """
-    return Config()
+    return Config(config_path)

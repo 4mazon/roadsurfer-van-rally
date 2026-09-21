@@ -1,0 +1,3 @@
+include ruff.toml
+include .github/workflows/ci.yml
+recursive-include tests *.py *.json *.md
