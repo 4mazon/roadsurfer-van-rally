@@ -90,3 +90,57 @@ jobs:
         with:
           name: coverage-${{ matrix.os }}
           path: htmlcov/
+
+  # These names are required by main's branch protection. Keep them stable even
+  # when the implementation jobs above are renamed or expanded into a matrix.
+  required-lint:
+    name: Ruff Lint
+    needs: build
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require successful lint and build
+        env:
+          UPSTREAM_RESULTS: ${{ toJSON(needs) }}
+        shell: python
+        run: |
+          import json
+          import os
+          import sys
+          results = json.loads(os.environ["UPSTREAM_RESULTS"])
+          sys.exit(0 if results and all(job["result"] == "success" for job in results.values()) else 1)
+
+  required-tests:
+    name: Run Tests
+    needs: [build, tests]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require successful installed-package tests on every OS
+        env:
+          UPSTREAM_RESULTS: ${{ toJSON(needs) }}
+        shell: python
+        run: |
+          import json
+          import os
+          import sys
+          results = json.loads(os.environ["UPSTREAM_RESULTS"])
+          sys.exit(0 if results and all(job["result"] == "success" for job in results.values()) else 1)
+
+  required-coverage:
+    name: Coverage (fail if < 80%)
+    needs: [build, tests]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      # The tests matrix enforces --cov-fail-under=80 on every OS.
+      - name: Require successful coverage enforcement on every OS
+        env:
+          UPSTREAM_RESULTS: ${{ toJSON(needs) }}
+        shell: python
+        run: |
+          import json
+          import os
+          import sys
+          results = json.loads(os.environ["UPSTREAM_RESULTS"])
+          sys.exit(0 if results and all(job["result"] == "success" for job in results.values()) else 1)
